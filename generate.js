@@ -16,24 +16,31 @@ var struct = [{"value":[{"value":"int a = 0;","name":"func"},
                          "cond":""
                         }],
                "name":"main",
-               "cond":""}];
+               "cond":"()"}];
 
-function generate(obj){
+function getSpace(index){
+	var space = "";
+	for (var i = 1; i < index; i++) {
+		space += "    ";
+	};
+	return space;
+}
+function generate(obj,index){
 	var str = ""
 	if(obj.length > 1)
-	  str += "{\n";
+	  str += getSpace(index) + "{\n";
 	for (var i = 0; i < obj.length; i++) {
 		if(keyworkds.indexOf(obj[i]["name"]) != -1){
-			str += obj[i]["name"] + obj[i]["cond"] + "\n";
-			str += generate(obj[i]["value"]);
+			str += getSpace(index+1) + obj[i]["name"] + obj[i]["cond"] + "\n";
+			str += generate(obj[i]["value"],index+1);
 		}else{
-			str += obj[i]["value"];
+			str += getSpace(index+1) + obj[i]["value"];
 			str += "\n";
 		} 
 	}
 	if(obj.length > 1)
-	  str += "}\n";
+	  str += getSpace(index) + "}\n";
 	return str;
 }
 
-alert(generate(struct));
+alert("void "+generate(struct,0));
