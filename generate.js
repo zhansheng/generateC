@@ -4,7 +4,13 @@ var struct = [{"value":[{"value":"int a = 0;","name":"func"},
                         {"value":"int b = 1;","name":"func"},
                         {"value":[
                              {"value":'a=a+10;',"name":"func"},
-                             {"value":'printf("%d",a);',"name":"func"}
+                             {"value":'printf("%d",a);',"name":"func"},
+                             {"value":[{"value":'printf("%d",i);',"name":"func"},
+                                       {"value":"i++;","name":"func"}
+                                      ],
+                              "name":"while",
+                              "cond":"(i<10)"
+                             },
                             ],
                          "name":"if",
                          "cond":"(a>b)"
