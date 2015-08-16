@@ -1,8 +1,10 @@
-var controlList = ["flowchart_tjfz_item",
+var controlList = ["flowchart_start_item",
+                   "flowchart_tjfz_item",
                    "flowchart_tjxh_item",
                    "flowchart_yyxh_item",
                    "flowchart_jsxh_item"];
 var controlTypePoint = {
+  "flowchart_start_item":{"head":"TopCenter","body":null,"foot":["BottomCenter"]},
   "flowchart_tjfz_item":{"head":"TopCenter","body":null,"foot":["LeftMiddle","RightMiddle"]},
   "flowchart_tjxh_item":{"head":"TopCenter","body":"BottomCenter","foot":["RightMiddle"]},
   "flowchart_yyxh_item":{"head":"TopCenter","body":"BottomCenter","foot":["RightMiddle"]},
@@ -171,10 +173,13 @@ function convertDataToC(){
   console.log(typeof(controlTypePoint.id)=="undefined");
 }
 
-
-function getBodyByID(ID){
+function getTypeByID(ID){
   var type = ID.split("_");
   type = type[0]+"_"+type[1]+"_item";
+  return type;
+}
+
+function getBodyByType(type){
   var type_info = controlTypePoint[type];
   if(typeof(type_info)=="undefined"){
     return {"body":null};
@@ -182,9 +187,7 @@ function getBodyByID(ID){
   return type_info;
 }
 
-function getFootByID(ID){
-  var type = ID.split("_");
-  type = type[0]+"_"+type[1]+"_item";
+function getFootByType(type){
   var type_info = controlTypePoint[type];
   if(typeof(type_info)=="undefined"){
     return {"foot":["BottomCenter"]};
@@ -198,12 +201,13 @@ function createStruct(startID,links,end){
   if(targetID.indexOf(end)!=-1){
     return;
   }
-  var body = getBodyByID(targetID).body;
+  var type = getTypeByID(targetID);
+  var body = getBodyByType(type).body;
   if(body!=null){
     var startID = targetID.replace("TopCenter",body);
     createStruct(startID,links,targetID.replace("TopCenter","LeftMiddle"));
   }
-  var foot = getFootByID(targetID).foot;
+  var foot = getFootByType(type).foot;
   for (var i = 0; i < foot.length; i++) {
     var startID = targetID.replace("TopCenter",foot[i]);
     createStruct(startID,links,end);
