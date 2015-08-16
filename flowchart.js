@@ -171,6 +171,17 @@ function convertDataToC(){
   console.log(typeof(controlTypePoint.id)=="undefined");
 }
 
+
+function getBodyByID(ID){
+  var type = ID.split("_");
+  type = type[0]+"_"+type[1]+"_item";
+  var type_info = controlTypePoint[type];
+  if(typeof(type_info)=="undefined"){
+    return {"body":null};
+  }
+  return type_info;
+}
+
 function getFootByID(ID){
   var type = ID.split("_");
   type = type[0]+"_"+type[1]+"_item";
@@ -181,17 +192,22 @@ function getFootByID(ID){
   return type_info;
 }
 
-function createStruct(startID,links){
+function createStruct(startID,links,end){
   console.log(startID);
   var targetID = getTargetIDBySourceID(startID,links).target_id;
-  if(targetID.indexOf("flowchart_end")!=-1){
+  if(targetID.indexOf(end)!=-1){
     return;
+  }
+  var body = getBodyByID(targetID).body;
+  if(body!=null){
+    var startID = targetID.replace("TopCenter",body);
+    createStruct(startID,links,targetID.replace("TopCenter","LeftMiddle"));
   }
   var foot = getFootByID(targetID).foot;
   for (var i = 0; i < foot.length; i++) {
     var startID = targetID.replace("TopCenter",foot[i]);
-    createStruct(startID,links);
+    createStruct(startID,links,end);
   };
 }
 
-createStruct("flowchart_start_1439564127545_BottomCenter",data.links)
+createStruct("flowchart_start_1439564127545_BottomCenter",data.links,"flowchart_end")
