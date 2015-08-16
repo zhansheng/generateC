@@ -239,16 +239,12 @@ function createStruct(startID,links,end,index){
       //console.log(getSpace(index)+name[i]+"{")
       str += getSpace(index+1) + name[i] + "{";
       str += "\n";
-    }
-    if(foot.length==2){
       str+=createStruct(startID,links,end,index+1);
-    }else{
-      str+=createStruct(startID,links,end,index);
-    }
-    if(foot.length==2){
       //console.log(getSpace(index)+"}")
       str += getSpace(index+1) + "}";
       str += "\n";
+    }else{
+      str+=createStruct(startID,links,end,index);
     }
   };
   return str;
