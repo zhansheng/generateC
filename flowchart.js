@@ -4,11 +4,11 @@ var controlList = ["flowchart_start_item",
                    "flowchart_yyxh_item",
                    "flowchart_jsxh_item"];
 var controlTypePoint = {
-  "flowchart_start_item":{"head":"TopCenter","body":null,"foot":["BottomCenter"]},
-  "flowchart_tjfz_item":{"head":"TopCenter","body":null,"foot":["LeftMiddle","RightMiddle"]},
-  "flowchart_tjxh_item":{"head":"TopCenter","body":"BottomCenter","foot":["RightMiddle"]},
-  "flowchart_yyxh_item":{"head":"TopCenter","body":"BottomCenter","foot":["RightMiddle"]},
-  "flowchart_jsxh_item":{"head":"TopCenter","body":"BottomCenter","foot":["RightMiddle"]},
+  "flowchart_start_item":{"name":"mian","head":"TopCenter","body":null,"foot":["BottomCenter"]},
+  "flowchart_tjfz_item":{"name":["if","else"],"head":"TopCenter","body":null,"foot":["LeftMiddle","RightMiddle"]},
+  "flowchart_tjxh_item":{"name":"while","head":"TopCenter","body":"BottomCenter","foot":["RightMiddle"]},
+  "flowchart_yyxh_item":{"name":"while","head":"TopCenter","body":"BottomCenter","foot":["RightMiddle"]},
+  "flowchart_jsxh_item":{"name":"while","head":"TopCenter","body":"BottomCenter","foot":["RightMiddle"]},
 }
 var data = {
     "nodes": [
@@ -165,18 +165,23 @@ function getTargetIDBySourceID(sourceID,links){
   return null
 }
 
-function convertDataToC(){
-  var node = getIDByPrefix("flowchart_start",data.nodes);
-  if(node == null){
-    return;
-  }
-  console.log(typeof(controlTypePoint.id)=="undefined");
+function getIDByID(ID){
+  var values = ID.split("_").slice(0, -1);
+  return "func";//values.join("_");
 }
 
 function getTypeByID(ID){
   var type = ID.split("_");
   type = type[0]+"_"+type[1]+"_item";
   return type;
+}
+
+function getNameByType(type){
+  var type_info = controlTypePoint[type];
+  if(typeof(type_info)=="undefined"){
+    return {"name":""};
+  }
+  return type_info;
 }
 
 function getBodyByType(type){
@@ -195,23 +200,71 @@ function getFootByType(type){
   return type_info;
 }
 
-function createStruct(startID,links,end){
-  console.log(startID);
+function getSpace(index){
+  var space = "";
+  for (var i = 0; i < index; i++) {
+    space += "    ";
+  };
+  return space;
+}
+
+function createStruct(startID,links,end,index){
+  var str = "";
+  if(controlList.indexOf(getTypeByID(startID))==-1){
+    //console.log(getSpace(index)+getIDByID(startID));
+    str += getSpace(index+1) + getIDByID(startID);
+    str += "\n";
+  }
   var targetID = getTargetIDBySourceID(startID,links).target_id;
   if(targetID.indexOf(end)!=-1){
-    return;
+    return str;
   }
   var type = getTypeByID(targetID);
+  var name = getBodyByType(type).name;
   var body = getBodyByType(type).body;
   if(body!=null){
     var startID = targetID.replace("TopCenter",body);
-    createStruct(startID,links,targetID.replace("TopCenter","LeftMiddle"));
+    //console.log(getSpace(index)+name+"{")
+    str += getSpace(index+1) + name + "{";
+    str += "\n";
+    str += createStruct(startID,links,targetID.replace("TopCenter","LeftMiddle"),index+1);
+    //console.log(getSpace(index)+"}")
+    str += getSpace(index+1) + "}";
+    str += "\n";
   }
   var foot = getFootByType(type).foot;
   for (var i = 0; i < foot.length; i++) {
     var startID = targetID.replace("TopCenter",foot[i]);
-    createStruct(startID,links,end);
+    if(foot.length==2){
+      //console.log(getSpace(index)+name[i]+"{")
+      str += getSpace(index+1) + name[i] + "{";
+      str += "\n";
+    }
+    if(foot.length==2){
+      str+=createStruct(startID,links,end,index+1);
+    }else{
+      str+=createStruct(startID,links,end,index);
+    }
+    if(foot.length==2){
+      //console.log(getSpace(index)+"}")
+      str += getSpace(index+1) + "}";
+      str += "\n";
+    }
   };
+  return str;
 }
 
-createStruct("flowchart_start_1439564127545_BottomCenter",data.links,"flowchart_end")
+function main(){
+  //console.log("main(){");
+  var str="main(){\n";
+  var node = getIDByPrefix("flowchart_start",data.nodes);
+  if(node != null){
+    var startID = node.id + "_BottomCenter";
+    str += createStruct(startID,data.links,"flowchart_end",0); 
+  }
+  //console.log("}");
+  str += "}";
+  alert(str);
+}
+
+main()
